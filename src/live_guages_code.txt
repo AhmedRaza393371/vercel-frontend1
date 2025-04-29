@@ -1,0 +1,208 @@
+import React, { useEffect, useState } from "react";
+import GaugeChart from "react-gauge-chart";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import Sidebar from "./Sidebar"; // Import Sidebar component
+
+const API_URL = "http://localhost:5000/api/data";
+
+const DCE_Ground_Left = () => {
+  const [sensorData, setSensorData] = useState([]);
+  const [historicalData, setHistoricalData] = useState({});
+  const maxDataPoints = 12; // Store last 1-minute data (5-sec intervals)
+  const maxPPMDefault = 100;
+  const maxPPMH2 = 500;
+  const maxPPMC2H5OH = 500;
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false); // Add state for sidebar collapse
+
+  // Fetch Data from API every 5 seconds
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (data?.body?.Readings) {
+          const updatedReadings = data.body.Readings.map(sensor => ({
+            ...sensor,
+            PPM: isNaN(sensor.PPM) || sensor.PPM === Infinity ? 0 : sensor.PPM
+          }));
+          setSensorData(updatedReadings);
+
+          updateTrendData(updatedReadings);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching data:", error);
+      }
+    };
+
+    fetchData(); // Fetch data on mount
+    const interval = setInterval(fetchData, 5000); // Fetch every 5 seconds
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
+  // Update Historical Data for Trends
+  const updateTrendData = (newReadings) => {
+    setHistoricalData((prevData) => {
+      const newData = { ...prevData };
+
+      newReadings.forEach(({ SensorName, PPM }) => {
+        if (!newData[SensorName]) {
+          newData[SensorName] = [];
+        }
+
+        const now = new Date();
+        const timeLabel = `${now.getMinutes()}:${String(now.getSeconds()).padStart(2, "0")}`;
+
+        // Push new data point
+        newData[SensorName] = [...newData[SensorName], { time: timeLabel, ppm: PPM }];
+
+        // Keep only last 12 data points (for 1-minute storage)
+        if (newData[SensorName].length > maxDataPoints) {
+          newData[SensorName].shift();
+        }
+      });
+
+      return newData;
+    });
+  };
+
+  // Function to dynamically change gauge color based on PPM
+  const getGaugeColor = (sensorName, ppm) => {
+    if (sensorName === "H2" || sensorName === "C2H5OH") {
+      if (ppm >= 250) return ["#F2495C", "#E02F44", "#C4162A"]; // Red for High PPM
+      if (ppm < 100) return ["#73BF69", "#56A64B", "#37872D"]; // Green for Low PPM
+      return ["#FADE2A", "#F2CC0C", "#E0B400"]; // Yellow for Moderate PPM
+    } else {
+      if (ppm >= 50) return ["#F2495C", "#E02F44", "#C4162A"]; // Red for Critical PPM
+      if (ppm < 20) return ["#73BF69", "#56A64B", "#37872D"]; // Green for Safe PPM
+      return ["#FADE2A", "#F2CC0C", "#E0B400"]; // Yellow for Moderate PPM
+    }
+  };
+
+  // Function to get sensor-specific title color
+  const getSensorTitleColor = (sensorName) => {
+    if (sensorName === "H2") return "text-blue-400";
+    if (sensorName === "C2H5OH") return "text-yellow-300";  
+    if (sensorName === "CO") return "text-orange-400";
+    if (sensorName === "CO2") return "text-green-400";
+    if (sensorName === "CH4") return "text-purple-400";
+    return "text-pink-400"; // Default
+  };
+
+  // Function to normalize PPM values
+  const getPPMPercentage = (sensorName, ppm) => {
+    let maxPPM = maxPPMDefault;
+    if (sensorName === "H2" || sensorName === "C2H5OH") {
+      maxPPM = sensorName === "H2" ? maxPPMH2 : maxPPMC2H5OH;
+    }
+    return Math.min(Math.max(ppm / maxPPM, 0), 1); // Normalize to (0-1)
+  };
+
+  // Toggle sidebar collapse state
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!isSidebarCollapsed);
+  };
+
+  // Function to safely call .toFixed() on sensor.PPM
+  const formatPPM = (ppm) => {
+    if (typeof ppm === 'number') {
+      return ppm.toFixed(2);
+    }
+    return '0.00';
+  };
+
+  return (
+    <div className="flex">
+      {/* Sidebar */}
+      <Sidebar 
+        isSidebarCollapsed={isSidebarCollapsed} 
+        setSidebarCollapsed={toggleSidebar}
+      />
+      
+      {/* Main Content */}
+      <div className="p-6 bg-gray-900 min-h-screen text-gray-100 flex-1">
+        <div className="flex flex-col justify-start items-center min-h-screen">
+          <h1 className="font-bold text-6xl mb-12 text-blue-400">DCE Ground Floor Left</h1>
+          <div className="flex flex-wrap justify-center gap-6">
+            {sensorData.length > 0 ? (
+              sensorData.map((sensor, index) => (
+                <div key={index} className="w-full sm:w-1/2 md:w-1/3 p-4 bg-gray-800 shadow-lg rounded-lg border border-gray-700">
+                  <div className="flex flex-col md:flex-row">
+                    {/* Gauge Section */}
+                    <div className="flex-1 mb-4 md:mr-4">
+                      <div className="bg-gray-800 rounded-xl p-5 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 w-64 h-64 relative border border-gray-700">
+                        <h3 className={`text-lg font-semibold uppercase mb-2 ${getSensorTitleColor(sensor.SensorName)}`}>
+                          {sensor.SensorName}
+                        </h3>
+                        <div className="relative w-full h-40 flex items-center justify-center">
+                          <GaugeChart
+                            id={`gauge-chart-${sensor.SensorName}`}
+                            nrOfLevels={20}
+                            percent={getPPMPercentage(sensor.SensorName, sensor.PPM)}
+                            colors={getGaugeColor(sensor.SensorName, sensor.PPM)}
+                            arcWidth={0.3}
+                            needleColor="#FFFFFF"
+                            needleBaseColor="#5794F2"
+                            textColor="transparent"
+                            animate={true}
+                            cornerRadius={6}
+                            style={{ width: "100%", height: "100%" }}
+                          />
+                          {/* PPM Value and Status */}
+                          <div className="absolute bottom-1 flex flex-col items-center">
+                            <div className="text-xl font-bold text-blue-300">
+                              {formatPPM(sensor.PPM)} PPM
+                            </div>
+                            <div className={`text-xs font-semibold ${getSensorTitleColor(sensor.SensorName)}`}>
+                              {sensor.PPM >= 250 ? "HIGH" : sensor.PPM < 100 ? "SAFE" : "MODERATE"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Trend Chart Section */}
+                    <div className="flex-1">
+                      <div className="w-full">
+                        <h3 className="text-lg font-semibold text-blue-400 mb-2">Trend Data</h3>
+                        {historicalData[sensor.SensorName] && historicalData[sensor.SensorName].length > 0 ? (
+                          <ResponsiveContainer width="100%" height={250}>
+                            <AreaChart data={historicalData[sensor.SensorName]} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id={`colorGradient-${sensor.SensorName}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor={getGaugeColor(sensor.SensorName, sensor.PPM)[0]} stopOpacity={0.8} />
+                                  <stop offset="95%" stopColor={getGaugeColor(sensor.SensorName, sensor.PPM)[0]} stopOpacity={0.1} />
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                              <XAxis dataKey="time" stroke="#aaa" tick={{ fill: '#aaa' }} />
+                              <YAxis stroke="#aaa" tick={{ fill: '#aaa' }} />
+                              <Tooltip contentStyle={{ backgroundColor: '#222', borderColor: '#555', color: '#fff' }} />
+                              <Area
+                                type="monotone"
+                                dataKey="ppm"
+                                stroke={getGaugeColor(sensor.SensorName, sensor.PPM)[0]}
+                                fill={`url(#colorGradient-${sensor.SensorName})`}
+                                strokeWidth={2}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        ) : (
+                          <p className="text-center text-gray-400">Waiting for data...</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-400">Waiting for new data...</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DCE_Ground_Left;

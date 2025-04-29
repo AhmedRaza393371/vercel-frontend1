@@ -1,0 +1,479 @@
+import React from "react";
+import GaugeChart from 'react-gauge-chart';
+
+const Dashboard = () => {
+  return (
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-800 text-white p-4">
+        <h2 className="text-xl font-semibold">Air Quality Monitor</h2>
+        <ul className="mt-8 space-y-4">
+          <li>Dashboard</li>
+          <li>Air Quality Data</li>
+          <li>Historical Data</li>
+          <li>Settings</li>
+        </ul>
+      </div>
+
+      {/* Main Dashboard */}
+      <div className="flex-1 p-6 bg-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          {/* Radial Gauge Chart */}
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <h3 className="text-2xl font-bold">Air Quality Index</h3>
+            <GaugeChart id="gauge-chart1" nrOfLevels={30} colors={["#FF5F6D", "#FFC371"]} percent={0.75} />
+          </div>
+
+          {/* Another Gauge */}
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <h3 className="text-2xl font-bold">Pollution Level</h3>
+            <GaugeChart id="gauge-chart2" nrOfLevels={30} colors={["#00FF00", "#FFDD00", "#FF0000"]} percent={0.4} />
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+
+function Dashboard() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [activeSidebarItem, setActiveSidebarItem] = useState('Dashboard');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
+  
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+  
+  // Mock data for graphs
+  const generateTimeSeriesData = (hours, baseValue, volatility) => {
+    const data = [];
+    const now = new Date();
+    
+    for (let i = hours; i >= 0; i--) {
+      const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+      const value = baseValue + (Math.random() - 0.5) * volatility;
+      data.push({
+        time: time.toISOString(),
+        value: value.toFixed(2),
+      });
+    }
+    
+    return data;
+  };
+  
+  const pm25Data = generateTimeSeriesData(24, 18, 10);
+  const co2Data = generateTimeSeriesData(24, 750, 200);
+  const vocData = generateTimeSeriesData(24, 0.25, 0.15);
+  const temperatureData = generateTimeSeriesData(24, 22, 3);
+  const humidityData = generateTimeSeriesData(24, 45, 15);
+  
+  return (
+    <div className="flex h-screen bg-gray-900 text-gray-100">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+        {/* Logo */}
+        <div className="p-4 border-b border-gray-700 flex items-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-teal-500 rounded-md flex items-center justify-center mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5">
+              <path d="M3.055 13H5a2 2 0 012 2v1a2 2 0 002 2h1a2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h1.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span className="text-lg font-semibold">AirQuality</span>
+        </div>
+        
+        {/* Navigation Items */}
+        <nav className="flex-grow py-4">
+          <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase">Main</div>
+          
+          <a 
+            href="#" 
+            className={`flex items-center px-4 py-2 ${activeSidebarItem === 'Dashboard' ? 'bg-blue-500 bg-opacity-20 text-blue-400 border-l-4 border-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+            onClick={() => setActiveSidebarItem('Dashboard')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            Dashboard
+          </a>
+          
+          <a 
+            href="#" 
+            className={`flex items-center px-4 py-2 ${activeSidebarItem === 'Devices' ? 'bg-blue-500 bg-opacity-20 text-blue-400 border-l-4 border-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+            onClick={() => setActiveSidebarItem('Devices')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+            Devices
+          </a>
+          
+          <a 
+            href="#" 
+            className={`flex items-center px-4 py-2 ${activeSidebarItem === 'Users' ? 'bg-blue-500 bg-opacity-20 text-blue-400 border-l-4 border-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+            onClick={() => setActiveSidebarItem('Users')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Users
+          </a>
+          
+          <div className="px-4 py-2 mt-4 text-xs font-semibold text-gray-400 uppercase">Monitoring</div>
+          
+          <a 
+            href="#" 
+            className={`flex items-center px-4 py-2 ${activeSidebarItem === 'Alerts' ? 'bg-blue-500 bg-opacity-20 text-blue-400 border-l-4 border-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+            onClick={() => setActiveSidebarItem('Alerts')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            Alerts
+          </a>
+          
+          <a 
+            href="#" 
+            className={`flex items-center px-4 py-2 ${activeSidebarItem === 'Notifications' ? 'bg-blue-500 bg-opacity-20 text-blue-400 border-l-4 border-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+            onClick={() => setActiveSidebarItem('Notifications')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+            </svg>
+            Notifications
+          </a>
+          
+          <div className="px-4 py-2 mt-4 text-xs font-semibold text-gray-400 uppercase">Configuration</div>
+          
+          <a 
+            href="#" 
+            className={`flex items-center px-4 py-2 ${activeSidebarItem === 'Settings' ? 'bg-blue-500 bg-opacity-20 text-blue-400 border-l-4 border-blue-400' : 'text-gray-300 hover:bg-gray-700'}`}
+            onClick={() => setActiveSidebarItem('Settings')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </a>
+        </nav>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navbar */}
+        <header className="bg-gray-800 border-b border-gray-700 flex items-center justify-between p-4">
+          <h1 className="text-xl font-semibold">Dashboard</h1>
+          
+          <div className="flex items-center space-x-6">
+            {/* Time Range Selector */}
+            <div className="flex items-center">
+              <select 
+                className="bg-gray-700 border border-gray-600 text-gray-300 rounded px-2 py-1 text-sm"
+                value={selectedTimeRange}
+                onChange={(e) => setSelectedTimeRange(e.target.value)}
+              >
+                <option value="1h">Last 1 hour</option>
+                <option value="6h">Last 6 hours</option>
+                <option value="12h">Last 12 hours</option>
+                <option value="24h">Last 24 hours</option>
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+              </select>
+            </div>
+            
+            {/* Current Time */}
+            <div className="text-gray-300 text-sm">
+              {currentTime.toLocaleTimeString()}
+            </div>
+            
+            {/* User Profile */}
+            <div className="relative">
+              <button className="flex items-center focus:outline-none">
+                <img 
+                  src="/api/placeholder/32/32" 
+                  alt="User" 
+                  className="w-8 h-8 rounded-full border-2 border-gray-600"
+                />
+              </button>
+            </div>
+          </div>
+        </header>
+        
+        {/* Dashboard Content */}
+        <main className="flex-1 overflow-auto p-4">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-gray-400 text-sm font-medium">Total Devices</h3>
+                <div className="bg-green-500 bg-opacity-20 rounded-full p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-baseline">
+                <p className="text-2xl font-bold">24</p>
+                <span className="ml-2 text-xs font-medium text-green-400">+2 this week</span>
+              </div>
+              <div className="mt-1 text-xs text-gray-400">18 active, 6 inactive</div>
+            </div>
+            
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-gray-400 text-sm font-medium">Total Users</h3>
+                <div className="bg-blue-500 bg-opacity-20 rounded-full p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-baseline">
+                <p className="text-2xl font-bold">156</p>
+                <span className="ml-2 text-xs font-medium text-blue-400">+14 this month</span>
+              </div>
+              <div className="mt-1 text-xs text-gray-400">42 admins, 114 regular users</div>
+            </div>
+            
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-gray-400 text-sm font-medium">Active Alerts</h3>
+                <div className="bg-red-500 bg-opacity-20 rounded-full p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-baseline">
+                <p className="text-2xl font-bold">3</p>
+                <span className="ml-2 text-xs font-medium text-red-400">2 high, 1 medium</span>
+              </div>
+              <div className="mt-1 text-xs text-gray-400">Requires immediate attention</div>
+            </div>
+            
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-gray-400 text-sm font-medium">Data Points</h3>
+                <div className="bg-purple-500 bg-opacity-20 rounded-full p-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex items-baseline">
+                <p className="text-2xl font-bold">1.2M</p>
+                <span className="ml-2 text-xs font-medium text-purple-400">+34K today</span>
+              </div>
+              <div className="mt-1 text-xs text-gray-400">Collected across all sensors</div>
+            </div>
+          </div>
+          
+          {/* Main Graph Panel */}
+          <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Overall Air Quality Index</h2>
+              <div className="flex space-x-2">
+                <button className="bg-gray-700 hover:bg-gray-600 text-xs px-2 py-1 rounded">Export</button>
+                <button className="bg-gray-700 hover:bg-gray-600 text-xs px-2 py-1 rounded">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            {/* Graph Area - This would be a real chart in production */}
+            <div className="h-64 bg-gray-900 rounded-lg border border-gray-700 relative">
+              {/* Simulated Graph */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-full h-full p-4">
+                  <div className="relative h-full">
+                    {/* Y-axis */}
+                    <div className="absolute left-0 h-full flex flex-col justify-between text-xs text-gray-400">
+                      <span>100</span>
+                      <span>75</span>
+                      <span>50</span>
+                      <span>25</span>
+                      <span>0</span>
+                    </div>
+                    
+                    {/* X-axis */}
+                    <div className="absolute bottom-0 left-8 right-0 flex justify-between text-xs text-gray-400">
+                      <span>00:00</span>
+                      <span>06:00</span>
+                      <span>12:00</span>
+                      <span>18:00</span>
+                      <span>24:00</span>
+                    </div>
+                    
+                    {/* Grid Lines */}
+                    <div className="absolute left-8 right-0 top-0 bottom-5 flex flex-col justify-between">
+                      <div className="border-b border-gray-700 border-opacity-50 h-0"></div>
+                      <div className="border-b border-gray-700 border-opacity-50 h-0"></div>
+                      <div className="border-b border-gray-700 border-opacity-50 h-0"></div>
+                      <div className="border-b border-gray-700 border-opacity-50 h-0"></div>
+                      <div className="border-b border-gray-700 border-opacity-50 h-0"></div>
+                    </div>
+                    
+                    {/* Simulated Line - Would be a real chart in production */}
+                    <svg className="absolute left-8 right-0 top-0 bottom-5" viewBox="0 0 100 50" preserveAspectRatio="none">
+                      <path 
+                        d="M0,35 Q10,25 20,28 T40,20 T60,15 T80,25 T100,20" 
+                        fill="none" 
+                        stroke="#3B82F6" 
+                        strokeWidth="1.5"
+                      />
+                      <path 
+                        d="M0,35 Q10,25 20,28 T40,20 T60,15 T80,25 T100,20" 
+                        fill="url(#gradient)" 
+                        fillOpacity="0.2" 
+                        stroke="none"
+                      />
+                      <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.5" />
+                          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center space-x-4 mt-4">
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-blue-400 mr-2"></div>
+                <span className="text-xs text-gray-400">AQI Score</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-green-400 mr-2"></div>
+                <span className="text-xs text-gray-400">Good Range</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                <span className="text-xs text-gray-400">Moderate Range</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+                <span className="text-xs text-gray-400">Poor Range</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Gas Trends Panels */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* PM2.5 Panel */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-medium">PM2.5 Concentration</h3>
+                <div className="text-green-400 text-sm font-medium">
+                  18 μg/m³
+                </div>
+              </div>
+              
+              {/* Mini Chart */}
+              <div className="h-32 bg-gray-900 rounded border border-gray-700 relative mb-2">
+                <svg className="absolute inset-0" viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <path 
+                    d="M0,20 Q10,15 20,18 T40,10 T60,15 T80,5 T100,10" 
+                    fill="none" 
+                    stroke="#34D399" 
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              </div>
+              
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>Min: 12 μg/m³</span>
+                <span>Avg: 17.5 μg/m³</span>
+                <span>Max: 25 μg/m³</span>
+              </div>
+            </div>
+            
+            {/* CO2 Panel */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-medium">CO₂ Levels</h3>
+                <div className="text-yellow-400 text-sm font-medium">
+                  764 ppm
+                </div>
+              </div>
+              
+              {/* Mini Chart */}
+              <div className="h-32 bg-gray-900 rounded border border-gray-700 relative mb-2">
+                <svg className="absolute inset-0" viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <path 
+                    d="M0,10 Q10,15 20,12 T40,20 T60,25 T80,18 T100,22" 
+                    fill="none" 
+                    stroke="#FBBF24" 
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              </div>
+              
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>Min: 650 ppm</span>
+                <span>Avg: 732 ppm</span>
+                <span>Max: 820 ppm</span>
+              </div>
+            </div>
+            
+            {/* VOCs Panel */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 shadow">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-medium">VOCs</h3>
+                <div className="text-green-400 text-sm font-medium">
+                  0.24 ppm
+                </div>
+              </div>
+              
+              {/* Mini Chart */}
+              <div className="h-32 bg-gray-900 rounded border border-gray-700 relative mb-2">
+                <svg className="absolute inset-0" viewBox="0 0 100 40" preserveAspectRatio="none">
+                  <path 
+                    d="M0,
