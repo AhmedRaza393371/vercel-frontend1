@@ -1,9 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Sidebar = ({ activeMenuItem, setActiveMenuItem, isSidebarCollapsed, setSidebarCollapsed, userInfo }) => {
   // Check if user is admin
   const isAdmin = userInfo?.isAdmin;
+
+  // Set default collapsed state for mobile
+  useEffect(() => {
+    const handleResize = () => {
+      // Consider screen width <= 768px as mobile
+      if (window.innerWidth <= 768) {
+        setSidebarCollapsed(true);
+      } else {
+        setSidebarCollapsed(false); // Optional: Expand on larger screens
+      }
+    };
+
+    // Run on mount
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, [setSidebarCollapsed]);
 
   return (
     <div
@@ -148,42 +169,41 @@ const Sidebar = ({ activeMenuItem, setActiveMenuItem, isSidebarCollapsed, setSid
 
         {/* Sensors Threshold */}
         {isAdmin && (
-        <Link to="/settings" onClick={() => setActiveMenuItem('settings')}>
-          <button
-            className={`w-full flex items-center px-4 py-2 ${
-              activeMenuItem === 'settings'
-                ? 'bg-blue-500 text-white'
-                : isSidebarCollapsed
-                ? 'text-gray-400'
-                : 'text-white'
-            } hover:bg-blue-500 transition duration-300`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <Link to="/settings" onClick={() => setActiveMenuItem('settings')}>
+            <button
+              className={`w-full flex items-center px-4 py-2 ${
+                activeMenuItem === 'settings'
+                  ? 'bg-blue-500 text-white'
+                  : isSidebarCollapsed
+                  ? 'text-gray-400'
+                  : 'text-white'
+              } hover:bg-blue-500 transition duration-300`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            {!isSidebarCollapsed && <span className="ml-3">Sensors</span>}
-          </button>
-        </Link>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {!isSidebarCollapsed && <span className="ml-3">Sensors</span>}
+            </button>
+          </Link>
         )}
       </div>
-          
 
       {/* Collapse Button */}
       <div className="px-4 py-2 fixed bottom-0 left-0 border-t border-gray-700" style={{ width: isSidebarCollapsed ? '4rem' : '14rem' }}>
