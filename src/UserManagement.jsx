@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 
@@ -15,12 +15,22 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768); // Initialize for mobile
   const [popup, setPopup] = useState({ show: false, message: '', type: '' });
-  const [activeMenuItem, setActiveMenuItem] = useState('users'); // Add activeMenuItem state
-  const [userInfo, setUserInfo] = useState(null); // Add userInfo state
+  const [activeMenuItem, setActiveMenuItem] = useState('users');
+  const [userInfo, setUserInfo] = useState(null);
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+
+  // Handle sidebar collapse on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setSidebarCollapsed(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Load userInfo from localStorage and handle navigation if not authenticated
   useEffect(() => {
@@ -44,20 +54,22 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/users');
-      setUsers(response.data);
+      setUsers(response.data || []); // Ensure array to prevent undefined errors
     } catch (err) {
       setError('Error fetching users');
+      console.error('Fetch users error:', err);
     }
   };
 
   const fetchDevices = async () => {
     try {
       const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/devices');
-      const fetchedDevices = response.data;
+      const fetchedDevices = response.data || [];
       setDevices(fetchedDevices);
       localStorage.setItem('addedDevices', JSON.stringify(fetchedDevices));
     } catch (err) {
       setError('Error fetching devices');
+      console.error('Fetch devices error:', err);
     }
   };
 
@@ -109,6 +121,7 @@ const UserManagement = () => {
       setPopup({ show: true, message: errorMessage, type: 'error' });
       setTimeout(() => setPopup({ show: false, message: '', type: '' }), 3000);
       setError(errorMessage);
+      console.error('Add user error:', err);
     } finally {
       setLoading(false);
     }
@@ -126,12 +139,8 @@ const UserManagement = () => {
       setPopup({ show: true, message: errorMessage, type: 'error' });
       setTimeout(() => setPopup({ show: false, message: '', type: '' }), 3000);
       setError(errorMessage);
+      console.error('Delete user error:', err);
     }
-  };
-
-  // Toggle sidebar collapse state
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!isSidebarCollapsed);
   };
 
   // Reset form fields when opening modal
@@ -146,7 +155,7 @@ const UserManagement = () => {
     }, 50);
   };
 
-  // Filter available devices (not assigned to any user)
+  // Filter available devices
   const availableDevices = devices.filter(
     device => !users.some(user => user.deviceId === device.id)
   );
@@ -163,15 +172,15 @@ const UserManagement = () => {
           activeMenuItem={activeMenuItem}
           setActiveMenuItem={setActiveMenuItem}
           isSidebarCollapsed={isSidebarCollapsed}
-          setSidebarCollapsed={toggleSidebar}
+          setSidebarCollapsed={setSidebarCollapsed}
           userInfo={userInfo}
         />
 
         {/* Main Content */}
-        <div className="flex-1 p-8 overflow-auto">
+        <div className="flex-1 p-4 sm:p-8 overflow-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-white tracking-tight">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
               User Management
               <span className="block text-sm font-normal text-gray-400 mt-1">Manage your users efficiently</span>
             </h1>
@@ -180,7 +189,7 @@ const UserManagement = () => {
                 setShowModal(true);
                 resetFormFields();
               }}
-              className="flex items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-6 rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
+              className="mt-4 sm:mt-0 flex items-center bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-6 rounded-lg shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
@@ -202,37 +211,38 @@ const UserManagement = () => {
           {/* Existing Users Table */}
           <div className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
             <div className="p-6">
-              <h2 className="text-2xl font-semibold text-white mb-6">Existing Users</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold text-white mb-6">Existing Users</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-gray-100">
                   <thead>
                     <tr className="bg-gray-700 text-gray-300 text-left">
-                      <th className="py-4 px-6 font-medium">Username</th>
-                      <th className="py-4 px-6 font-medium">Email</th>
-                      <th className="py-4 px-6 font-medium">Gender</th>
-                      <th className="py-4 px-6 font-medium">Phone Number</th>
-                      <th className="py-4 px-6 font-medium">Device ID</th>
-                      <th className="py-4 px-6 font-medium">Actions</th>
+                      <th className="py-4 px-4 sm:px-6 font-medium">Username</th>
+                      <th className="py-4 px-4 sm:px-6 font-medium">Email</th>
+                      <th className="py-4 px-4 sm:px-6 font-medium">Gender</th>
+                      <th className="py-4 px-4 sm:px-6 font-medium">Phone Number</th>
+                      <th className="py-4 px-4 sm:px-6 font-medium">Device ID</th>
+                      <th className="py-4 px-4 sm:px-6 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.length > 0 ? (
                       users.map((user, index) => (
                         <tr
-                          key={user.id}
+                          key={user.id || index} // Fallback to index if user.id is undefined
                           className={`border-t border-gray-700 hover:bg-gray-750 transition-colors duration-200 ${
                             index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-850'
                           }`}
                         >
-                          <td className="py-4 px-6">{user.username}</td>
-                          <td className="py-4 px-6">{user.email}</td>
-                          <td className="py-4 px-6 capitalize">{user.gender}</td>
-                          <td className="py-4 px-6">{user.phoneNumber || 'N/A'}</td>
-                          <td className="py-4 px-6">{user.deviceId || 'N/A'}</td>
-                          <td className="py-4 px-6">
+                          <td className="py-4 px-4 sm:px-6">{user.username || 'N/A'}</td>
+                          <td className="py-4 px-4 sm:px-6">{user.email || 'N/A'}</td>
+                          <td className="py-4 px-4 sm:px-6 capitalize">{user.gender || 'N/A'}</td>
+                          <td className="py-4 px-4 sm:px-6">{user.phoneNumber || 'N/A'}</td>
+                          <td className="py-4 px-4 sm:px-6">{user.deviceId || 'N/A'}</td>
+                          <td className="py-4 px-4 sm:px-6">
                             <button
                               onClick={() => handleDeleteUser(user.id)}
                               className="text-red-400 hover:text-red-500 font-medium transition-colors duration-200"
+                              disabled={!user.id}
                             >
                               Delete
                             </button>
@@ -241,7 +251,7 @@ const UserManagement = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="py-6 px-6 text-center text-gray-400">
+                        <td colSpan="6" className="py-6 px-4 sm:px-6 text-center text-gray-400">
                           No users found.
                         </td>
                       </tr>
@@ -255,9 +265,9 @@ const UserManagement = () => {
           {/* Modal for Adding a New User */}
           {showModal && (
             <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 transition-opacity duration-300">
-              <div className="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 max-w-md w-full transform transition-all duration-300 scale-100">
+              <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-700 max-w-md w-full transform transition-all duration-300 scale-100">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold text-white">Add New User</h2>
+                  <h2 className="text-xl sm:text-2xl font-semibold text-white">Add New User</h2>
                   <button
                     onClick={() => setShowModal(false)}
                     className="text-gray-400 hover:text-gray-200 transition-colors duration-200"
