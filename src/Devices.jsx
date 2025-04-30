@@ -54,7 +54,7 @@ const Devices = () => {
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/devices');
+        const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/devices');
         console.log('🔍 Fetched Devices:', response.data);
         setDevices(response.data);
         setLoading(false);
@@ -81,7 +81,7 @@ const Devices = () => {
       const newStatuses = {};
       for (const device of addedDevices) {
         try {
-          const response = await axios.get(`http://localhost:5000/api/data?deviceId=${device.id}`);
+          const response = await axios.get(`https://vercel-backend1-eight.vercel.app/data?deviceId=${device.id}`);
           const data = response.data;
 
           console.log(`🔍 Response for device ${device.id}:`, JSON.stringify(data, null, 2));

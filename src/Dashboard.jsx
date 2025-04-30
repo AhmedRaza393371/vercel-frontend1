@@ -138,7 +138,7 @@ function Dashboard() {
     if (userInfo?.isAdmin) {
       const fetchUsers = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/api/users');
+          const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/users');
           setActiveUsers(response.data.length);
         } catch (error) {
           console.error('Error fetching users:', error);
@@ -168,7 +168,7 @@ function Dashboard() {
       let newActiveDevices = 0;
       for (const device of devicesToCheck) {
         try {
-          const response = await axios.get(`http://localhost:5000/api/data?deviceId=${device.id}`);
+          const response = await axios.get(`https://vercel-backend1-eight.vercel.app/api/data?deviceId=${device.id}`);
           const data = response.data;
 
           if (data?.body?.Readings?.length > 0) {
@@ -232,7 +232,7 @@ function Dashboard() {
 
             // Send email notification with detailed error logging
             axios
-              .post('http://localhost:5000/api/notify', {
+              .post('https://vercel-backend1-eight.vercel.app/api/notify', {
                 deviceId: alert.deviceId,
                 title: alert.title,
                 message: alert.message,
@@ -277,7 +277,7 @@ function Dashboard() {
       const devicesToFetch = userInfo?.isAdmin ? addedDevices : addedDevices.filter(device => device.id === userInfo?.deviceId);
 
       for (const device of devicesToFetch) {
-        const response = await axios.get(`http://localhost:5000/api/data?deviceId=${device.id}`);
+        const response = await axios.get(`https://vercel-backend1-eight.vercel.app/api/data?deviceId=${device.id}`);
         const readings = response.data?.body?.Readings || [];
 
         const gasNameMap = {

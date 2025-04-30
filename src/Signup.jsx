@@ -28,7 +28,7 @@ function Signup() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users', formData);
+      const response = await axios.post('https://vercel-backend1-eight.vercel.app/api/users', formData);
       navigate('/sign-in');
     } catch (err) {
       setError('Registration failed. Please try again.');

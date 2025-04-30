@@ -43,7 +43,7 @@ const UserManagement = () => {
   // Fetch users and devices from the backend
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/users');
+      const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/users');
       setUsers(response.data);
     } catch (err) {
       setError('Error fetching users');
@@ -52,7 +52,7 @@ const UserManagement = () => {
 
   const fetchDevices = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/devices');
+      const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/devices');
       const fetchedDevices = response.data;
       setDevices(fetchedDevices);
       localStorage.setItem('addedDevices', JSON.stringify(fetchedDevices));
@@ -86,7 +86,7 @@ const UserManagement = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users', {
+      const response = await axios.post('https://vercel-backend1-eight.vercel.app/api/users', {
         email,
         password,
         username,
@@ -117,7 +117,7 @@ const UserManagement = () => {
   // Handle user deletion
   const handleDeleteUser = async (userId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/users/${encodeURIComponent(userId)}`);
+      await axios.delete(`https://vercel-backend1-eight.vercel.app/api/users/${encodeURIComponent(userId)}`);
       setUsers(users.filter(user => user.id !== userId));
       setPopup({ show: true, message: 'User deleted successfully', type: 'success' });
       setTimeout(() => setPopup({ show: false, message: '', type: '' }), 3000);

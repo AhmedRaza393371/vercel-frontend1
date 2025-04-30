@@ -28,13 +28,13 @@ const DeviceDetail = () => {
   const [addedDevices, setAddedDevices] = useState([]);
   const maxDataPoints = 12;
 
-  const API_URL = `http://localhost:5000/api/data?deviceId=${deviceId}`;
-  const HISTORICAL_API_URL = `http://localhost:5000/api/historical-data?deviceId=${deviceId}`;
+  const API_URL = `https://vercel-backend1-eight.vercel.app/api/data?deviceId=${deviceId}`;
+  const HISTORICAL_API_URL = `https://vercel-backend1-eight.vercel.app/api/historical-data?deviceId=${deviceId}`;
 
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/devices');
+        const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/devices');
         const deviceIds = response.data.map(device => device.id);
         setValidDeviceIds(deviceIds);
       } catch (err) {

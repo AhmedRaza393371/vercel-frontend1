@@ -24,7 +24,7 @@ const ProtectedDeviceRoute = ({ children }) => {
   useEffect(() => {
     const validateDeviceId = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/devices');
+        const response = await axios.get('https://vercel-backend1-eight.vercel.app/api/devices');
         const validDeviceIds = response.data.map(device => device.id);
         if (!validDeviceIds.includes(deviceId)) {
           setIsValid(false);
