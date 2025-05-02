@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from './Navbar';
 
 function Signup() {
   const navigate = useNavigate();
@@ -39,6 +40,11 @@ function Signup() {
   };
 
   return (
+    <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100 font-[Poppins-SemiBold]">
+    {/* Navbar */}
+    <Navbar />
+
+
     <div className="min-h-screen w-screen flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 font-[Poppins-SemiBold] relative">
       {/* Background Overlay (Optional) */}
       <div
@@ -282,6 +288,7 @@ function Signup() {
           animation: fade-in 0.8s ease-in-out;
         }
       `}</style>
+    </div>
     </div>
   );
 }

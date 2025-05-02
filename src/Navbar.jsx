@@ -40,12 +40,10 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden flex flex-col items-center bg-gray-800 text-gray-100 space-y-4 py-4">
-          <Link to="/" className="text-blue-400 font-medium">Dashboard</Link>
+          <Link to="/" className="text-blue-400 font-medium">Home</Link>
           <Link to="/contact" className="text-gray-300 hover:text-gray-100">Contact Us</Link>
           <Link to="/about" className="text-gray-300 hover:text-gray-100">About Us</Link>
-          <Link to="/alerts" className="text-gray-300 hover:text-gray-100">Alerts</Link>
-          <Link to="/settings" className="text-gray-300 hover:text-gray-100">Settings</Link>
-          <Link to="/sign-in">
+                    <Link to="/sign-in">
             <button className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded text-sm font-medium">Sign In</button>
           </Link>
         </div>
