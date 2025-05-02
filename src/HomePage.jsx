@@ -30,7 +30,6 @@ function HomePage() {
           <a href="#" className="block py-2 px-4 text-blue-400 font-medium">Dashboard</a>
           <a href="#" className="block py-2 px-4 text-gray-300 hover:text-gray-100">Devices</a>
           <a href="#" className="block py-2 px-4 text-gray-300 hover:text-gray-100">Analytics</a>
-          <a href="#" className="block py-2 px-4 text-gray-300 hover:text-gray-100">Alerts</a>
           
           {/* make it to open contact us page */}
           <Link to="/contact" className="block py-2 px-4 text-gray-300 hover:text-gray-100">Contact Us</Link>

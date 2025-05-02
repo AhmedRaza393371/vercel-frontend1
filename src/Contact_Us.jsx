@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './App.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import Navbar from './Navbar';
+import './App.css';
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -12,6 +14,9 @@ function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [location, setLocation] = useState({ latitude: null, longitude: null, error: null });
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -45,6 +50,69 @@ function Contact() {
     }, 1500);
   };
 
+  useEffect(() => {
+    // Fetch user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            error: null,
+          });
+        },
+        (error) => {
+          setLocation({
+            latitude: null,
+            longitude: null,
+            error: 'Unable to retrieve location. Please allow location access or try again.',
+          });
+        }
+      );
+    } else {
+      setLocation({
+        latitude: null,
+        longitude: null,
+        error: 'Geolocation is not supported by this browser.',
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Initialize map when location is available
+    if (location.latitude && location.longitude && mapRef.current && !mapInstanceRef.current) {
+      // Initialize Leaflet map
+      mapInstanceRef.current = L.map(mapRef.current).setView([location.latitude, location.longitude], 13);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(mapInstanceRef.current);
+
+      // Add marker at user's location
+      L.marker([location.latitude, location.longitude])
+        .addTo(mapInstanceRef.current)
+        .bindPopup('We are here')
+        .openPopup();
+
+      // Fix Leaflet marker icon issue (default icon path)
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+    }
+
+    // Cleanup map on component unmount
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [location.latitude, location.longitude]);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100 font-[Poppins-SemiBold]">
       {/* Navbar */}
@@ -52,8 +120,7 @@ function Contact() {
 
       {/* Main Content */}
       <main className="flex-grow relative container mx-auto px-4 py-16">
-      {/* className="max-w-5xl mx-auto" */}
-        <div >
+        <div>
           {/* Page Header */}
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-blue-400">
@@ -106,7 +173,6 @@ function Contact() {
                     <div>
                       <h3 className="text-lg font-medium text-white">Address</h3>
                       <p className="text-gray-400">123 Tech Boulevard<br />San Francisco, CA 94107</p>
-                      
                     </div>
                   </div>
                 </div>
@@ -261,15 +327,24 @@ function Contact() {
 
           {/* Map Section */}
           <div className="mb-12">
-            <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-lg">
-              <div className="h-64 bg-gray-700 flex items-center justify-center">
-                <div className="text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                  <p className="text-gray-400">Interactive map would be displayed here</p>
+            <h2 className="text-3xl font-semibold text-blue-400 text-center mb-8">Our Current Location</h2>
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 shadow-lg text-center">
+              {location.error ? (
+                <p className="text-gray-300">{location.error}</p>
+              ) : location.latitude && location.longitude ? (
+                <div>
+                  <p className="text-gray-300 mb-4">
+                    Current Location: Latitude {location.latitude.toFixed(4)}, Longitude {location.longitude.toFixed(4)}
+                  </p>
+                  <div
+                    ref={mapRef}
+                    className="w-full h-64 md:h-96 rounded-lg"
+                    style={{ minHeight: '200px' }}
+                  ></div>
                 </div>
-              </div>
+              ) : (
+                <p className="text-gray-300">Fetching location...</p>
+              )}
             </div>
           </div>
 

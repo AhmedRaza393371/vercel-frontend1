@@ -14,6 +14,7 @@ import axios from 'axios';
 import Contact from './Contact_Us';
 import AlertHistory from './AlertHistory';
 import Settings from './Settings';
+import AboutUs from './About_Us';
 
 // Protected route for DeviceDetail
 const ProtectedDeviceRoute = ({ children }) => {
@@ -67,6 +68,8 @@ function App() {
           <Route path="/alert-history" element={<AlertHistory />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/about" element={<AboutUs />} />
+          
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/devices" element={<Devices />} />
