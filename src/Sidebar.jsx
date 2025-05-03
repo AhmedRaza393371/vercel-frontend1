@@ -167,6 +167,42 @@ const Sidebar = ({ activeMenuItem, setActiveMenuItem, isSidebarCollapsed, setSid
           </button>
         </Link>
 
+
+
+            {/* Only show notifications menu item for admins */}
+            {isAdmin && (
+              
+            
+            <Link to="/notifications" onClick={() => setActiveMenuItem('alerts')}>
+          <button
+            className={`w-full flex items-center px-4 py-2 ${
+              activeMenuItem === 'alerts'
+                ? 'bg-blue-500 text-white'
+                : isSidebarCollapsed
+                ? 'text-gray-400'
+                : 'text-white'
+            } hover:bg-blue-500 transition duration-300`}
+          >
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  className="h-5 w-5"
+  fill="none"
+  viewBox="0 0 24 24"
+  stroke="currentColor"
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth={2}
+    d="M15 17h5l-1.405-1.405M19 11V9a7 7 0 10-14 0v2a7 7 0 0014 0zm-7 6a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+/>
+</svg>
+
+            {!isSidebarCollapsed && <span className="ml-3">Notifcations</span>}
+          </button>
+        </Link>
+            )}
+
         {/* Sensors Threshold */}
         {isAdmin && (
           <Link to="/settings" onClick={() => setActiveMenuItem('settings')}>

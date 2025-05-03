@@ -81,8 +81,7 @@ const Devices = () => {
       const newStatuses = {};
       for (const device of addedDevices) {
         try {
-          const response = await axios.get(`https://vercel-backend1-eight.vercel.app/data?deviceId=${device.id}`);
-          const data = response.data;
+          const response = await axios.get(`https://vercel-backend1-eight.vercel.app/api/data?deviceId=${device.id}`);          const data = response.data;
 
           console.log(`🔍 Response for device ${device.id}:`, JSON.stringify(data, null, 2));
 

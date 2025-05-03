@@ -27,7 +27,7 @@ function HomePage() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-gray-800 border-b border-gray-700">
-          <a href="#" className="block py-2 px-4 text-blue-400 font-medium">Dashboard</a>
+          <a href="#" className="block py-2 px-4 text-blue-400 font-medium">Home</a>
           <a href="#" className="block py-2 px-4 text-gray-300 hover:text-gray-100">Devices</a>
           <a href="#" className="block py-2 px-4 text-gray-300 hover:text-gray-100">Analytics</a>
           

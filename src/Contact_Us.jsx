@@ -172,7 +172,7 @@ function Contact() {
                     </div>
                     <div>
                       <h3 className="text-lg font-medium text-white">Address</h3>
-                      <p className="text-gray-400">123 Tech Boulevard<br />San Francisco, CA 94107</p>
+                      <p className="text-gray-400">NUST College of Electrical<br />and Mechanical Engineering</p>
                     </div>
                   </div>
                 </div>

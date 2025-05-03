@@ -15,6 +15,7 @@ import Contact from './Contact_Us';
 import AlertHistory from './AlertHistory';
 import Settings from './Settings';
 import AboutUs from './About_Us';
+import Notifications from './Notifications';
 
 // Protected route for DeviceDetail
 const ProtectedDeviceRoute = ({ children }) => {
@@ -66,6 +67,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/alert-history" element={<AlertHistory />} />
+          <Route path="/notifications" element={<Notifications />} />
+          
           <Route path="/settings" element={<Settings />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/about" element={<AboutUs />} />
